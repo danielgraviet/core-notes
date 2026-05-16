@@ -1,0 +1,27 @@
+# Phase 1: Data Model Foundation
+
+## Goal
+Replace the placeholder `Item` model with a proper `Note` model that has `title` and `body` fields, and handle the SwiftData schema migration so the app doesn't crash on launch with an existing database.
+
+## Context
+The Xcode template created `Item.swift` with just a `timestamp` field. Everything downstream (list view, detail view, search) depends on this model being correct first. Get this right before touching any UI.
+
+SwiftData requires a `VersionedSchema` + `SchemaMigrationPlan` when you change an existing model's fields — skipping this causes a fatal crash on first launch after the schema change.
+
+## Acceptance Criteria
+- [ ] `Item.swift` renamed to `Note.swift` with the class renamed to `Note`
+- [ ] `Note` has `var title: String`, `var body: String`, `var createdAt: Date`, `var modifiedAt: Date`
+- [ ] `modifiedAt` is updated automatically whenever `body` or `title` is mutated (use `willSet` or a custom setter)
+- [ ] A `VersionedSchema` and lightweight migration plan exists so existing installs don't crash
+- [ ] `core_notesApp.swift` updated to reference `Note.self` instead of `Item.self`
+- [ ] App builds and runs without warnings or crashes
+- [ ] Xcode preview in `ContentView.swift` still works with `inMemory: true`
+
+## Files Likely Involved
+- `core-notes/Item.swift` (rename → `Note.swift`)
+- `core-notes/core_notesApp.swift`
+- `core-notes/ContentView.swift` (update any `Item` references)
+
+## Performance Notes
+- Use `final class` (SwiftData requires class, not struct) but keep the model lean — no computed properties that trigger heavy work.
+- `modifiedAt` sort will be the primary list sort in Phase 2; index it if SwiftData allows.
