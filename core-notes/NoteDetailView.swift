@@ -4,6 +4,7 @@ import SwiftData
 struct NoteDetailView: View {
     @Bindable var note: Note
     @FocusState private var titleFocused: Bool
+    @State private var touchTask: Task<Void, Never>?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -14,7 +15,7 @@ struct NoteDetailView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
                 .padding(.bottom, 8)
-                .onChange(of: note.title) { note.touch() }
+                .onChange(of: note.title) { scheduleSave() }
 
             Divider()
 
@@ -23,11 +24,29 @@ struct NoteDetailView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .onChange(of: note.body) { note.touch() }
+                .onChange(of: note.body) { scheduleSave() }
         }
         .onAppear {
             if note.title.isEmpty {
                 titleFocused = true
+            }
+        }
+        .onDisappear {
+            // Flush immediately when leaving the view so modifiedAt
+            // is never stale if the debounce hadn't fired yet.
+            touchTask?.cancel()
+            note.touch()
+        }
+    }
+
+    private func scheduleSave() {
+        touchTask?.cancel()
+        touchTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .seconds(1))
+                note.touch()
+            } catch {
+                // Task was cancelled — a newer keystroke is already scheduled.
             }
         }
     }
