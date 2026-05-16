@@ -1,59 +1,92 @@
-//
-//  ContentView.swift
-//  core-notes
-//
-//  Created by Daniel Graviet on 5/15/26.
-//
-
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var searchText = ""
+    @State private var selectedNote: Note?
 
     var body: some View {
         NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+            NoteListContent(searchText: searchText, selectedNote: $selectedNote)
+                .navigationTitle("Notes")
+                .navigationSplitViewColumnWidth(min: 180, ideal: 220)
+                .searchable(text: $searchText)
+                .toolbar {
+                    ToolbarItem {
+                        Button(action: addNote) {
+                            Label("New Note", systemImage: "square.and.pencil")
+                        }
+                        .keyboardShortcut("n", modifiers: .command)
                     }
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            .toolbar {
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
         } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            if selectedNote != nil {
+                Text("Note detail — coming in Phase 3")
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Select a note")
+                    .foregroundStyle(.secondary)
             }
+        }
+    }
+
+    private func addNote() {
+        let note = Note()
+        modelContext.insert(note)
+        selectedNote = note
+    }
+}
+
+// Separate struct so @Query can be re-initialized with a dynamic predicate
+// whenever searchText changes. This is the correct SwiftData pattern for
+// filtered queries — the predicate runs in SQLite, not in Swift.
+private struct NoteListContent: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var notes: [Note]
+    @Binding var selectedNote: Note?
+
+    init(searchText: String, selectedNote: Binding<Note?>) {
+        var descriptor = FetchDescriptor<Note>(
+            sortBy: [SortDescriptor(\Note.modifiedAt, order: .reverse)]
+        )
+        if !searchText.isEmpty {
+            descriptor.predicate = #Predicate { note in
+                note.title.contains(searchText) ||
+                note.body.contains(searchText)
+            }
+        }
+        descriptor.fetchLimit = 50
+        _notes = Query(descriptor, animation: .none)
+        _selectedNote = selectedNote
+    }
+
+    var body: some View {
+        List(selection: $selectedNote) {
+            ForEach(notes) { note in
+                NoteRowView(note: note)
+                    .tag(note)
+            }
+            .onDelete(perform: deleteNotes)
+        }
+        .overlay {
+            if notes.isEmpty {
+                Text("No notes")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func deleteNotes(offsets: IndexSet) {
+        for index in offsets {
+            let note = notes[index]
+            if selectedNote == note { selectedNote = nil }
+            modelContext.delete(note)
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Note.self, inMemory: true)
 }
