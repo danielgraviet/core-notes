@@ -21,9 +21,9 @@ struct ContentView: View {
                     }
                 }
         } detail: {
-            if selectedNote != nil {
-                Text("Note detail — coming in Phase 3")
-                    .foregroundStyle(.secondary)
+            if let note = selectedNote {
+                NoteDetailView(note: note)
+                    .id(note.persistentModelID)
             } else {
                 Text("Select a note")
                     .foregroundStyle(.secondary)
@@ -57,7 +57,7 @@ private struct NoteListContent: View {
             }
         }
         descriptor.fetchLimit = 50
-        _notes = Query(descriptor, animation: .none)
+        _notes = Query(descriptor)
         _selectedNote = selectedNote
     }
 
