@@ -3,6 +3,10 @@ import SwiftUI
 import SwiftData
 import Carbon
 
+extension Notification.Name {
+    static let quickCaptureNote = Notification.Name("quickCaptureNote")
+}
+
 // Menu-bar-first architecture:
 // - NSStatusItem + NSPopover for the quick-capture icon. SwiftUI's MenuBarExtra
 //   cannot be shown programmatically, so AppKit is used directly — this is the
@@ -94,6 +98,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
+    // Hotkey action: show the editor and signal ContentView to create a new note.
+    // Posting the notification lets ContentView own creation (correct modelContext)
+    // rather than AppDelegate inserting into mainContext and hoping @Query catches up.
+    func quickCapture() {
+        showMainWindow()
+        NotificationCenter.default.post(name: .quickCaptureNote, object: nil)
+    }
+
     // NSWindowDelegate — hide instead of destroy so the SwiftUI tree stays alive.
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         sender.orderOut(nil)
@@ -111,7 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             GetApplicationEventTarget(),
             { _, _, _ -> OSStatus in
                 // Carbon fires on the main thread; dispatch async for safety.
-                DispatchQueue.main.async { AppDelegate.instance?.togglePopover() }
+                DispatchQueue.main.async { AppDelegate.instance?.quickCapture() }
                 return noErr
             },
             1, &eventSpec, nil, &eventHandlerRef

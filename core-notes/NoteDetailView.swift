@@ -32,9 +32,12 @@ struct NoteDetailView: View {
             }
         }
         .onDisappear {
-            // Flush immediately when leaving the view so modifiedAt
-            // is never stale if the debounce hadn't fired yet.
+            // Only flush if the debounce is still pending (user typed but 1s hasn't elapsed).
+            // Unconditional touch() here causes modifiedAt to update on every navigation,
+            // which re-sorts the list and makes notes swap positions.
+            guard touchTask != nil else { return }
             touchTask?.cancel()
+            touchTask = nil
             note.touch()
         }
     }
@@ -45,9 +48,8 @@ struct NoteDetailView: View {
             do {
                 try await Task.sleep(for: .seconds(1))
                 note.touch()
-            } catch {
-                // Task was cancelled — a newer keystroke is already scheduled.
-            }
+                touchTask = nil  // nil out so onDisappear knows nothing is pending
+            } catch {}
         }
     }
 }

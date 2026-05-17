@@ -29,6 +29,9 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .quickCaptureNote)) { _ in
+            addNote()
+        }
     }
 
     private func addNote() {
