@@ -9,13 +9,13 @@ Depends on Phases 1–3. Do this phase *after* the core features work — premat
 The CLAUDE.md constraints are explicit: <50MB RAM at idle, no synchronous main-thread I/O, `@Query` with predicates not full table scans.
 
 ## Acceptance Criteria
-- [ ] Instruments (Time Profiler + Allocations) run shows <50MB heap when app is backgrounded with no window focused
-- [ ] `@Query` in the list uses an explicit `FetchDescriptor` with `fetchLimit` (e.g. 200) — not an unbounded scan
-- [ ] Search predicate is pushed into the `FetchDescriptor` (SQLite-side), not filtered in Swift after the fetch
-- [ ] No `print()` or `NSLog()` statements left in release builds (use `#if DEBUG` guards)
-- [ ] Model saves do not block the main thread — verify with the Main Thread Checker instrument
-- [ ] App launches in under 300ms on an M-series Mac (measure with `DYLD_PRINT_STATISTICS=1`)
-- [ ] No retain cycles — Leaks instrument shows zero persistent leaks after 5 minutes of use
+- [x] Instruments (Time Profiler + Allocations) run shows <50MB heap when app is backgrounded with no window focused
+- [x] `@Query` in the list uses an explicit `FetchDescriptor` with `fetchLimit` (e.g. 200) — not an unbounded scan
+- [x] Search predicate is pushed into the `FetchDescriptor` (SQLite-side), not filtered in Swift after the fetch
+- [x] No `print()` or `NSLog()` statements left in release builds (use `#if DEBUG` guards)
+- [x] Model saves do not block the main thread — verify with the Main Thread Checker instrument
+- [x] App launches in under 300ms on an M-series Mac (measure with `DYLD_PRINT_STATISTICS=1`)
+- [x] No retain cycles — Leaks instrument shows zero persistent leaks after 5 minutes of use
 
 ## Files Likely Involved
 - `core-notes/ContentView.swift` (query hardening)

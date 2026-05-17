@@ -9,14 +9,14 @@ Depends on Phase 2. The `NavigationSplitView` detail column is currently a place
 The design philosophy is speed over polish. The editor should be a plain `TextEditor` — no rich text, no formatting toolbar, no markdown rendering. The fastest editor is the one with the fewest layers.
 
 ## Acceptance Criteria
-- [ ] Selecting a note in the list loads `NoteDetailView` in the detail column
-- [ ] `NoteDetailView` has a `TextField` for the title at the top and a `TextEditor` for the body below
-- [ ] Changes are written to SwiftData immediately on each change (via `.onChange` or `@Binding`) — no explicit save button
-- [ ] `modifiedAt` is updated on every save
-- [ ] When no note is selected, the detail column shows a minimal "Select a note" placeholder (plain text, nothing else)
-- [ ] Focus moves to the title field automatically when a new note is created
-- [ ] `Cmd+W` or `Esc` dismisses focus back to the list (standard macOS behavior — don't fight it)
-- [ ] The view works correctly in the Xcode preview with an in-memory container
+- [x] Selecting a note in the list loads `NoteDetailView` in the detail column
+- [x] `NoteDetailView` has a `TextField` for the title at the top and a `TextEditor` for the body below
+- [x] Changes are written to SwiftData immediately on each change (via `.onChange` or `@Binding`) — no explicit save button
+- [x] `modifiedAt` is updated on every save
+- [x] When no note is selected, the detail column shows a minimal "Select a note" placeholder (plain text, nothing else)
+- [x] Focus moves to the title field automatically when a new note is created
+- [x] `Cmd+W` or `Esc` dismisses focus back to the list (standard macOS behavior — don't fight it)
+- [x] The view works correctly in the Xcode preview with an in-memory container
 
 ## Files Likely Involved
 - `core-notes/NoteDetailView.swift` (new file)

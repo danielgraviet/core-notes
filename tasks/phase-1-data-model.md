@@ -9,14 +9,14 @@ The Xcode template created `Item.swift` with just a `timestamp` field. Everythin
 SwiftData requires a `VersionedSchema` + `SchemaMigrationPlan` when you change an existing model's fields — skipping this causes a fatal crash on first launch after the schema change.
 
 ## Acceptance Criteria
-- [ ] `Item.swift` renamed to `Note.swift` with the class renamed to `Note`
-- [ ] `Note` has `var title: String`, `var body: String`, `var createdAt: Date`, `var modifiedAt: Date`
-- [ ] `Note` exposes a `touch()` method that sets `modifiedAt = .now` — callers invoke it after all mutations are done so SwiftData fires one observation notification per logical edit, not one per property changed
-- [ ] No `didSet` on model properties — `didSet` on an `@Model` property that mutates another `@Model` property causes a double observation notification on every keystroke, doubling SwiftUI re-render work on the main thread
-- [ ] For dev builds: delete the app from the simulator to clear the old `ZITEM` SQLite table before first run — no VersionedSchema needed until the app has real users with data to preserve
-- [ ] `core_notesApp.swift` updated to reference `Note.self` instead of `Item.self`
-- [ ] App builds and runs without warnings or crashes
-- [ ] Xcode preview in `ContentView.swift` still works with `inMemory: true`
+- [x] `Item.swift` renamed to `Note.swift` with the class renamed to `Note`
+- [x] `Note` has `var title: String`, `var body: String`, `var createdAt: Date`, `var modifiedAt: Date`
+- [x] `Note` exposes a `touch()` method that sets `modifiedAt = .now` — callers invoke it after all mutations are done so SwiftData fires one observation notification per logical edit, not one per property changed
+- [x] No `didSet` on model properties — `didSet` on an `@Model` property that mutates another `@Model` property causes a double observation notification on every keystroke, doubling SwiftUI re-render work on the main thread
+- [x] For dev builds: delete the app from the simulator to clear the old `ZITEM` SQLite table before first run — no VersionedSchema needed until the app has real users with data to preserve
+- [x] `core_notesApp.swift` updated to reference `Note.self` instead of `Item.self`
+- [x] App builds and runs without warnings or crashes
+- [x] Xcode preview in `ContentView.swift` still works with `inMemory: true`
 
 ## Files Likely Involved
 - `core-notes/Item.swift` (rename → `Note.swift`)

@@ -20,13 +20,19 @@ This phase requires a conscious architectural decision before coding. The CLAUDE
 
 **Recommendation to evaluate**: menu bar app with a keyboard global shortcut (e.g. `Cmd+Shift+Space`) for instant note capture. Standard window stays available for longer editing sessions.
 
+## Decision
+Menu bar app with global hotkey (Cmd+Shift+Space). NSStatusItem + NSPopover via AppDelegate
+(not MenuBarExtra) because MenuBarExtra cannot be shown programmatically — required for hotkey
+support. Carbon RegisterEventHotKey used (no Accessibility entitlement needed). WindowGroup
+window hidden on launch, close intercepted to hide-not-destroy.
+
 ## Acceptance Criteria
-- [ ] Architectural decision documented as a comment in `core_notesApp.swift` with reasoning
-- [ ] Chosen mode implemented and working
+- [x] Architectural decision documented as a comment in `core_notesApp.swift` with reasoning
+- [x] Chosen mode implemented and working
 - [ ] App backgrounded with no visible window uses <25MB RAM (menu bar) or <50MB (standard window)
 - [ ] CPU usage at idle is 0% (no timers, no polling, no background tasks)
 - [ ] If menu bar: popover opens in <100ms on keypress
-- [ ] If menu bar: app does not appear in the Dock when popover is closed (`LSUIElement = YES` in Info.plist)
+- [x] If menu bar: app does not appear in the Dock when popover is closed (`LSUIElement = YES` in Info.plist)
 - [ ] App survives sleep/wake cycles without crashing or leaking
 
 ## Files Likely Involved
